@@ -32,7 +32,7 @@ else:
     argdesc = __name__
 
 parser = argparse.ArgumentParser(description=argdesc, formatter_class=argparse.RawDescriptionHelpFormatter)
-parser.add_argument("command", nargs=1, choices=["gen", "parse"], help="The action to take; gen-quare generates an XLS using name, parse-quare parses XLS using name")
+parser.add_argument("command", nargs=1, choices=["gen", "parse"], help="The action to take; gen generates an XLS using name, parse parses XLS using name")
 parser.add_argument("xls_file", nargs='?', default="stdout", help="The name of the XLS file associated with command.")
 parser.add_argument("--loglevel", choices=["DEBUG", "WARNING", "INFO", "ERROR", "CRITICAL"], default="ERROR", help="set logger debug level; default is ERROR")
 parser.add_argument("--wlname", nargs="?", help="Use named workload to gen or parse.")
