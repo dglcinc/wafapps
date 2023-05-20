@@ -77,7 +77,7 @@ def write_lens_psv(wl_id,lens_id,f=None,**kwargs):
 
 def write_lens_xls(wl_id, lens_id, sh):
     # this function writes an XLS containing the lens questions so they can be reviewed and/or updated easily
-    row = ["pillar", "question_id", "question_title", "choice_id", "choice_title", "choice_status", "choice_reason", "choice_description", "X or NA", "Reason/Notes"]
+    row = ["pillar", "question_id", "question_title", "choice_id", "choice_title", "choice_status", "choice_reason", "choice_description", "X or NA", "Reason/Notes", "Risk Level"]
     sh.append(row)
 
     for pi in pillar_list:
@@ -99,12 +99,20 @@ def write_lens_xls(wl_id, lens_id, sh):
             remove_non_ascii(qt)
             ia = ""
             re = ""
+            risk = ""
             try:
                 ia = asum['IsApplicable']
+            except:
+                pass
+            try:
                 re = asum['Reason']
             except:
                 pass
-            row = [pi, qid, qt, "", "", ia, re, "", "", ""]
+            try:
+                risk = asum['Risk']
+            except:
+                pass
+            row = [pi, qid, qt, "", "", ia, re, "", "", "", risk]
             sh.append(row)
     
             for ch in asum['Choices']:
@@ -119,11 +127,16 @@ def write_lens_xls(wl_id, lens_id, sh):
                 cas = list(filter(lambda summaries: summaries['ChoiceId'] == cid, asum['ChoiceAnswerSummaries']))
                 reason = ""
                 status = ""
+                choice = ""
                 if len(cas) > 0:
                     status = cas[0]['Status']
+                    if status == "SELECTED":
+                        choice = "X"
+                    elif status == "NOT_APPLICABLE":
+                        choice = "NA"
                     reason = cas[0]['Reason']
     
-                row = [pi, qid, qt, cid, ct, status, reason, cd, "", ""]
+                row = [pi, qid, qt, cid, ct, status, reason, cd, choice, ""]
 
                 sh.append(row)
     # put in formatting features
@@ -142,13 +155,9 @@ def write_lens_xls(wl_id, lens_id, sh):
     sh.column_dimensions['C'].width = 30
     sh.column_dimensions['E'].width = 36
     sh.column_dimensions['H'].width = 65
-    sh.column_dimensions['I'].width = 15
+    sh.column_dimensions['I'].width = 10
     sh.column_dimensions['J'].width = 40
-    #for column_cells in sh.columns:
-    #    new_column_length = max(len(str(cell.value)) for cell in column_cells)
-    #    new_column_letter = (get_column_letter(column_cells[0].column))
-    #    if new_column_length > 0:
-    #        sh.column_dimensions[new_column_letter].width = new_column_length
+    sh.column_dimensions['K'].width = 10
 
     # hide the ID columns
     sh.column_dimensions['B'].hidden = True
