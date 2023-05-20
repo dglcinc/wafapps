@@ -14,7 +14,7 @@ exportImportWAFR.py</pre>
 
 They are pretty self explanatory; the workshop site also has good docs and examples.
 ### wafapps scripts
-These scripts are primarily used to export an XLS from an assessment. It will create the assessment (with either the default name or a specfied name) and use the supplied XLS file. It uses <code> openpyxl</code> as the formatting library, which is extensively documented online.
+These scripts are used to export an XLS from an assessment, edit the responses in the XLS by putting X or NA in the "X or NA" column and notes in the Notes column, and then load back into AWS. It will create the assessment (with either the default name or a specfied name) and use the supplied XLS file. It uses <code> openpyxl</code> as the formatting library, which is extensively documented online.
 
 There are three modules:
 
@@ -31,7 +31,7 @@ There are three modules:
 * **wafnav/lens.py**: commands to format pipe-delimited or XLSX output for a designated workload and lens
 
 #### Caveats:
-* `Questionnaire.py` is a convenience to allow the use of a formatted XLS to collect input from the customer more simply than with a web app or other contrivance, and then load it back into AWS. Some "limitations" are as follows:
+* `Questionnaire.py` is a convenience to allow the use of a formatted XLS to collect input from the customer more simply than with a web app or other contrivance, and then load it back into AWS. Limitations are as follows:
     * The XLS dump and load script relies on hidden columns and defined numeric positions for question_id and choice_id to get the parameters for the load command. If you change the column order or the number of columns, you'll break the script.
     * The script also assumes that the choices are grouped to the corresponding question. If you sort the rows differently you'll break the script.
 * Since you're running these tools from the command line, boto3 is using the AWS context you have set up for the CLI tools. Make sure the account, region, etc. is what you expect before running.
