@@ -46,18 +46,24 @@ def write_lens_psv(wl_id,lens_id,f=None,**kwargs):
     for pi in pillar_list:
         wl = client.get_workload(WorkloadId=wl_id)
 
-        try:
-            ans = client.list_answers(WorkloadId=wl_id,LensAlias=lens_id,PillarId=pi)
-        except:
-            logger.error("no answers found for pillar: " + pi)
-            continue
+        asum = []
+        while True:
+            try:
+                ans = client.list_answers(WorkloadId=wl_id,LensAlias=lens_id,PillarId=pi, MaxResults=50)
+                asum.extend(ans['AnswerSummaries'])
+                if "NextToken" not in ans:
+                    break
+            except Exception as e:
+                print(e)
+                logger.error("no answers found for pillar: " + pi)
+                break
 
-        for asum in ans['AnswerSummaries']:
-            qid = asum['QuestionId']
-            qt = asum['QuestionTitle']
+        for a in asum:
+            qid = a['QuestionId']
+            qt = a['QuestionTitle']
             remove_non_ascii(qt)
     
-            for ch in asum['Choices']:
+            for ch in a['Choices']:
                 ct = ch['Title']
                 ct = ct.replace('\n','')
                 ct = " ".join(ct.split())
@@ -66,7 +72,7 @@ def write_lens_psv(wl_id,lens_id,f=None,**kwargs):
                 cd = cd.replace('\n','')
                 cd = " ".join(cd.split())
 
-                cas = list(filter(lambda summaries: summaries['ChoiceId'] == cid, asum['ChoiceAnswerSummaries']))
+                cas = list(filter(lambda summaries: summaries['ChoiceId'] == cid, a['ChoiceAnswerSummaries']))
                 reason = ""
                 status = ""
                 if len(cas) > 0:
@@ -85,37 +91,43 @@ def write_lens_xls(wl_id, lens_id, sh):
         if (logger.level == "DEBUG"):
             print(json.dumps(wl,indent=2,default=str))
     
-        try:
-            ans = client.list_answers(WorkloadId=wl_id,LensAlias=lens_id,PillarId=pi)
-        except:
-            logger.error("no answers found for pillar: " + pi)
-            continue
+        asum = []
+        while True:
+            try:
+                ans = client.list_answers(WorkloadId=wl_id,LensAlias=lens_id,PillarId=pi,MaxResults=50)
+                asum.extend(ans['AnswerSummaries'])
+                if "NextToken" not in ans:
+                    break
+            except Exception as e:
+                print(e)
+                logger.error("no answers found for pillar: " + pi)
+                break
     
         if (logger.getEffectiveLevel() == logging.DEBUG):
             print(json.dumps(ans,indent=2,default=str))
-        for asum in ans['AnswerSummaries']:
-            qid = asum['QuestionId']
-            qt = asum['QuestionTitle']
+        for a in asum:
+            qid = a['QuestionId']
+            qt = a['QuestionTitle']
             remove_non_ascii(qt)
             ia = ""
             re = ""
             risk = ""
             try:
-                ia = asum['IsApplicable']
+                ia = a['IsApplicable']
             except:
                 pass
             try:
-                re = asum['Reason']
+                re = a['Reason']
             except:
                 pass
             try:
-                risk = asum['Risk']
+                risk = a['Risk']
             except:
                 pass
             row = [pi, qid, qt, "", "", ia, re, "", "", "", risk]
             sh.append(row)
     
-            for ch in asum['Choices']:
+            for ch in a['Choices']:
                 ct = ch['Title']
                 ct = ct.replace('\n','')
                 ct = " ".join(ct.split())
@@ -124,7 +136,7 @@ def write_lens_xls(wl_id, lens_id, sh):
                 cd = cd.replace('\n','')
                 cd = " ".join(cd.split())
     
-                cas = list(filter(lambda summaries: summaries['ChoiceId'] == cid, asum['ChoiceAnswerSummaries']))
+                cas = list(filter(lambda summaries: summaries['ChoiceId'] == cid, a['ChoiceAnswerSummaries']))
                 reason = ""
                 status = ""
                 choice = ""
